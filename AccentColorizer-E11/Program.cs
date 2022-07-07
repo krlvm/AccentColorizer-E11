@@ -22,6 +22,7 @@ namespace AccentColorizer_E11
             var key = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\AccentColorizer");
             var currentColor = (string)key.GetValue(theme, defaultColor);
             key.SetValue(theme, color);
+            key.Close();
 
             var dir = new DirectoryInfo(BASE_PATH + theme);
 
@@ -33,7 +34,7 @@ namespace AccentColorizer_E11
                 Utility.TakeOwnership(path);
 
                 var raw = Utility.ReadFile(path);
-                raw = raw.Replace(currentColor, color);
+                raw = raw.Replace(currentColor, color).Replace(defaultColor, color);
                 Utility.WriteFile(path, raw);
 
                 Utility.NormalizeOwnership(path);
