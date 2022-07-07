@@ -8,7 +8,10 @@ namespace AccentColorizer_E11
     class Program
     {
         private const string ARGUMENT_TAKEOWN = "TakeOwnership";
-        private static readonly string BASE_PATH = Environment.GetFolderPath(Environment.SpecialFolder.Windows) + @"\SystemApps\MicrosoftWindows.Client.Core_cw5n1h2txyewy\FileExplorerExtensions\Assets\images\contrast-standard\theme-";
+
+        private static string BASE_PATH = Environment.GetFolderPath(Environment.SpecialFolder.Windows) + @"\SystemApps\";
+        private const string PACKAGE_21H2 = @"MicrosoftWindows.Client.CBS_cw5n1h2txyewy\";
+        private const string PACKAGE_22H2 = @"MicrosoftWindows.Client.Core_cw5n1h2txyewy\";
 
         static void Main(string[] args)
         {
@@ -24,6 +27,18 @@ namespace AccentColorizer_E11
                 return;
             }
 
+            if (Directory.Exists(BASE_PATH + PACKAGE_22H2))
+            {
+                BASE_PATH += PACKAGE_22H2;
+            }
+            else
+            {
+                BASE_PATH += PACKAGE_21H2;
+            }
+            BASE_PATH += @"FileExplorerExtensions\Assets\images\contrast-standard\theme-";
+
+            Console.WriteLine(BASE_PATH);
+
             if (args.Length == 1 && ARGUMENT_TAKEOWN.Equals(args[0]))
             {
                 Utility.TakeRegistryOwnership(key);
@@ -32,10 +47,15 @@ namespace AccentColorizer_E11
                 Utility.TakeOwnership(BASE_PATH + "dark");
             }
 
-            ColorizeGlyphs("light", AccentColors.GetColorByTypeName("ImmersiveSystemAccent"), "#0078D4", key);
-            ColorizeGlyphs("dark", AccentColors.GetColorByTypeName("ImmersiveSystemAccentLight2"), "#4CC2FF", key);
+            ApplyColorization(key);
 
             key.Close();
+        }
+
+        private static void ApplyColorization(RegistryKey key)
+        {
+            ColorizeGlyphs("light", AccentColors.GetColorByTypeName("ImmersiveSystemAccent"), "#0078D4", key);
+            ColorizeGlyphs("dark", AccentColors.GetColorByTypeName("ImmersiveSystemAccentLight2"), "#4CC2FF", key);
         }
 
         private static void ColorizeGlyphs(string theme, Color replacementColor, string defaultColor, RegistryKey key)
