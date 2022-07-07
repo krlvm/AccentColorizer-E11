@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{194587B0-A9E7-46FA-84F7-CB980D69B8F2}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <RootNamespace>AccentColorizer_E11</RootNamespace>
     <AssemblyName>AccentColorizer-E11</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
