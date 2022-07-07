@@ -1,59 +1,22 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
-using System.Security.AccessControl;
-using System.Security.Principal;
 using System.Windows.Media;
 
 namespace AccentColorizer_E11
 {
     class Utility
     {
-        public static string ColorToHex(Color c)
-        {
-            return "#" + c.R.ToString("X2") + c.G.ToString("X2") + c.B.ToString("X2");
-        }
+        private const string GROUP_USERS_SID = "S-1-5-11";
 
         public static void TakeOwnership(string filepath)
         {
-            try
-            {
-                GetFullAccess(filepath);
-            } 
-            catch
-            {
-                ExecuteCommand("takeown.exe", $"/F \"{filepath}\"");
-                ExecuteCommand("icacls.exe", $"\"{filepath}\" /grant {Environment.UserName}:F");
-            }
+            ExecuteCommand("takeown.exe", $"/R /F \"{filepath}\"");
+            ExecuteCommand("icacls.exe", $"\"{filepath}\" /grant *{GROUP_USERS_SID}:F /T");
         }
 
-        public static void NormalizeOwnership(string filepath)
+        public static string ColorToHex(Color c)
         {
-            ExecuteCommand("icacls.exe", $"\"{filepath}\" /setowner \"NT SERVICE\\TrustedInstaller\"", false);
-            ExecuteCommand("icacls.exe", $"\"{filepath}\" /remove {Environment.UserName}:F", false);
-            ExecuteCommand("icacls.exe", $"\"{filepath}\" /t /q /c /reset", false);
-        }
-
-        private static void GetFullAccess(string filepath)
-        {
-            var security = File.GetAccessControl(filepath);
-            SecurityIdentifier user = WindowsIdentity.GetCurrent().User;
-            security.SetOwner(user);
-            security.SetAccessRule(new FileSystemAccessRule(user, FileSystemRights.FullControl, AccessControlType.Allow));
-            File.SetAccessControl(filepath, security);
-        }
-
-        public static void ExecuteCommand(string exec, string args, bool wait = true)
-        {
-            var proc = new Process();
-            proc.StartInfo.FileName = exec;
-            proc.StartInfo.Arguments = args;
-            proc.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            proc.Start();
-            if (wait)
-            {
-                proc.WaitForExit();
-            }
+            return "#" + c.R.ToString("X2") + c.G.ToString("X2") + c.B.ToString("X2");
         }
 
         public static string ReadFile(string filepath)
@@ -66,6 +29,27 @@ namespace AccentColorizer_E11
             var sw = new StreamWriter(filepath);
             sw.Write(text);
             sw.Close();
+        }
+
+        public static void ExecuteCommand(string exec, string args)
+        {
+            System.Console.WriteLine(exec + " " + args);
+            var proc = new Process();
+            proc.StartInfo.FileName = exec;
+            proc.StartInfo.Arguments = args;
+            proc.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            proc.Start();
+            proc.WaitForExit();
+        }
+
+        public static void RunElevated(string args)
+        {
+            Process.Start(new ProcessStartInfo(Process.GetCurrentProcess().MainModule.FileName)
+            {
+                UseShellExecute = true,
+                Verb = "runas",
+                Arguments = args
+            });
         }
     }
 }
