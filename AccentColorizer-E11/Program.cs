@@ -19,7 +19,7 @@ namespace AccentColorizer_E11
         {
             var color = Utility.ColorToHex(replacementColor);
 
-            var key = Registry.CurrentUser.CreateSubKey(@"SOFTWARE\AccentColorizer");
+            var key = Registry.LocalMachine.CreateSubKey(@"SOFTWARE\AccentColorizer");
             var currentColor = (string)key.GetValue(theme, defaultColor);
             key.SetValue(theme, color);
             key.Close();
@@ -31,13 +31,13 @@ namespace AccentColorizer_E11
                 var path = file.FullName;
                 Console.WriteLine(path);
 
-                Utility.TakeOwnership(path);
+                //Utility.TakeOwnership(path);
 
                 var raw = Utility.ReadFile(path);
                 raw = raw.Replace(currentColor, color).Replace(defaultColor, color);
                 Utility.WriteFile(path, raw);
 
-                Utility.NormalizeOwnership(path);
+                //Utility.NormalizeOwnership(path);
             }
         }
     }
