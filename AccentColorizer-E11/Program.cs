@@ -12,24 +12,38 @@ namespace AccentColorizer_E11
 
         static void Main(string[] args)
         {
+            RegistryKey key;
+
+            try
+            {
+                key = Registry.LocalMachine.CreateSubKey(@"SOFTWARE\AccentColorizer", true);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                Utility.RunElevated(ARGUMENT_TAKEOWN);
+                return;
+            }
+
             if (args.Length == 1 && ARGUMENT_TAKEOWN.Equals(args[0]))
             {
+                Utility.TakeRegistryOwnership(key);
+
                 Utility.TakeOwnership(BASE_PATH + "light");
                 Utility.TakeOwnership(BASE_PATH + "dark");
             }
 
-            ColorizeGlyphs("light", AccentColors.GetColorByTypeName("ImmersiveSystemAccent"), "#0078D4");
-            ColorizeGlyphs("dark", AccentColors.GetColorByTypeName("ImmersiveSystemAccentLight2"), "#4CC2FF");
+            ColorizeGlyphs("light", AccentColors.GetColorByTypeName("ImmersiveSystemAccent"), "#0078D4", key);
+            ColorizeGlyphs("dark", AccentColors.GetColorByTypeName("ImmersiveSystemAccentLight2"), "#4CC2FF", key);
+
+            key.Close();
         }
 
-        private static void ColorizeGlyphs(string theme, Color replacementColor, string defaultColor)
+        private static void ColorizeGlyphs(string theme, Color replacementColor, string defaultColor, RegistryKey key)
         {
             var color = Utility.ColorToHex(replacementColor);
 
-            var key = Registry.LocalMachine.CreateSubKey(@"SOFTWARE\AccentColorizer");
             var currentColor = (string)key.GetValue(theme, defaultColor);
             key.SetValue(theme, color);
-            key.Close();
 
             var dir = new DirectoryInfo(BASE_PATH + theme);
 
