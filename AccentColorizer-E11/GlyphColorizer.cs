@@ -37,6 +37,11 @@ namespace AccentColorizer_E11
 
                 var raw = Utility.ReadFile(path);
                 raw = raw.Replace(currentColor, color).Replace(defaultColor, color);
+                if ("light".Equals(theme))
+                {
+                    // Windows Spotlight has a different color used (WHY?)
+                    raw = raw.Replace("#0C59A4", color);
+                }
 
                 try
                 {
