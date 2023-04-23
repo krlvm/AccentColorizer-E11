@@ -16,6 +16,7 @@ namespace AccentColorizer_E11
         private static string ASSETS_PATH = @"FileExplorerExtensions\Assets\images\contrast-standard\theme-";
         private const string PACKAGE_21H2 = @"MicrosoftWindows.Client.CBS_cw5n1h2txyewy\";
         private const string PACKAGE_22H2 = @"MicrosoftWindows.Client.Core_cw5n1h2txyewy\";
+        private const string PACKAGE_WSDK = @"MicrosoftWindows.Client.FileExp_cw5n1h2txyewy\";
 
         static void Main(string[] args)
         {
@@ -31,7 +32,11 @@ namespace AccentColorizer_E11
                 return;
             }
 
-            if (Directory.Exists(BASE_PATH + PACKAGE_22H2))
+            if (Directory.Exists(BASE_PATH + PACKAGE_WSDK))
+            {
+                BASE_PATH += PACKAGE_WSDK;
+            }
+            else if (Directory.Exists(BASE_PATH + PACKAGE_22H2))
             {
                 BASE_PATH += PACKAGE_22H2;
             }
