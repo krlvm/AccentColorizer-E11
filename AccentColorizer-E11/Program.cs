@@ -1,7 +1,9 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Linq;
 
 namespace AccentColorizer_E11
 {
@@ -11,12 +13,6 @@ namespace AccentColorizer_E11
         public const string ARGUMENT_TAKEOWN = "-" + "TakeOwnership";
 
         public const string LISTENER_MUTEX = "-" + "ACCENTCLRE11";
-
-        private static string BASE_PATH = Environment.GetFolderPath(Environment.SpecialFolder.Windows) + @"\SystemApps\";
-        private static string ASSETS_PATH = @"FileExplorerExtensions\Assets\images\contrast-standard\theme-";
-        private const string PACKAGE_21H2 = @"MicrosoftWindows.Client.CBS_cw5n1h2txyewy\";
-        private const string PACKAGE_22H2 = @"MicrosoftWindows.Client.Core_cw5n1h2txyewy\";
-        private const string PACKAGE_WSDK = @"MicrosoftWindows.Client.FileExp_cw5n1h2txyewy\";
 
         static void Main(string[] args)
         {
@@ -32,29 +28,19 @@ namespace AccentColorizer_E11
                 return;
             }
 
-            if (Directory.Exists(BASE_PATH + PACKAGE_WSDK))
-            {
-                BASE_PATH += PACKAGE_WSDK;
-            }
-            else if (Directory.Exists(BASE_PATH + PACKAGE_22H2))
-            {
-                BASE_PATH += PACKAGE_22H2;
-            }
-            else
-            {
-                BASE_PATH += PACKAGE_21H2;
-            }
-            BASE_PATH += ASSETS_PATH;
+            var paths = FindPaths();
 
             if (args.Length > 0 && ARGUMENT_TAKEOWN.Equals(args[0]))
             {
                 Utility.TakeRegistryOwnership(key);
 
-                Utility.TakeOwnership(BASE_PATH + "light");
-                Utility.TakeOwnership(BASE_PATH + "dark");
+                foreach (var path in paths)
+                {
+                    Utility.TakeOwnership(path);
+                }
             }
 
-            var colorizer = new GlyphColorizer(BASE_PATH, key);
+            var colorizer = new GlyphColorizer(paths.Select(path => path + @"\theme-").ToArray(), key);
 
             if ((args.Length == 1 && ARGUMENT_APPLY.Equals(args[0])) || (args.Length == 2 && ARGUMENT_APPLY.Equals(args[1])))
             {
@@ -76,6 +62,31 @@ namespace AccentColorizer_E11
                     System.Windows.Forms.Application.Run(handler);
                 }
             }
+        }
+
+        private static List<string> FindPaths()
+        {
+            var paths = new List<string>();
+
+            string sysAppsPath = Environment.GetFolderPath(Environment.SpecialFolder.Windows) + @"\SystemApps\";
+            string[] knownPackages =
+            {
+                @"MicrosoftWindows.Client.CBS_cw5n1h2txyewy\",    // 21H2
+                @"MicrosoftWindows.Client.Core_cw5n1h2txyewy\",   // 22H2
+                @"MicrosoftWindows.Client.FileExp_cw5n1h2txyewy\" // WASDK
+            };
+
+            foreach (var pkg in knownPackages)
+            {
+                var path = sysAppsPath + pkg + @"FileExplorerExtensions\Assets\images\contrast-standard";
+                if (!Directory.Exists(path))
+                {
+                    continue;
+                }
+                paths.Add(path);
+            }
+
+            return paths;
         }
     }
 }

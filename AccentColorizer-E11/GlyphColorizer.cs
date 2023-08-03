@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Windows.Media;
 
@@ -7,19 +8,22 @@ namespace AccentColorizer_E11
 {
     class GlyphColorizer
     {
-        private readonly string basePath;
+        private const string DEFAULT_COLOR_LIGHT = "#0078D4";
+        private const string DEFAULT_COLOR_DARK  = "#4CC2FF";
+
+        private readonly string[] paths;
         private readonly RegistryKey key;
 
-        public GlyphColorizer(string basePath, RegistryKey key)
+        public GlyphColorizer(string[] paths, RegistryKey key)
         {
-            this.basePath = basePath;
+            this.paths = paths;
             this.key = key;
         }
 
         public void ApplyColorization()
         {
-            ColorizeGlyphs("light", AccentColors.GetColorByTypeName("ImmersiveSystemAccent"), "#0078D4");
-            ColorizeGlyphs("dark", AccentColors.GetColorByTypeName("ImmersiveSystemAccentLight2"), "#4CC2FF");
+            ColorizeGlyphs("light", AccentColors.GetColorByTypeName("ImmersiveSystemAccent"), DEFAULT_COLOR_LIGHT);
+            ColorizeGlyphs("dark", AccentColors.GetColorByTypeName("ImmersiveSystemAccentLight2"), DEFAULT_COLOR_DARK);
         }
 
         public void ColorizeGlyphs(string theme, Color replacementColor, string defaultColor)
@@ -29,28 +33,31 @@ namespace AccentColorizer_E11
             var currentColor = (string)key.GetValue(theme, defaultColor);
             key.SetValue(theme, color);
 
-            var dir = new DirectoryInfo(basePath + theme);
-
-            foreach (var file in dir.GetFiles("*.svg"))
+            foreach (var basePath in paths)
             {
-                var path = file.FullName;
+                var dir = new DirectoryInfo(basePath + theme);
 
-                var raw = Utility.ReadFile(path);
-                raw = raw.Replace(currentColor, color).Replace(defaultColor, color);
-                if ("light".Equals(theme))
+                foreach (var file in dir.GetFiles("*.svg"))
                 {
-                    // Windows Spotlight has a different color used (WHY?)
-                    raw = raw.Replace("#0C59A4", color);
-                }
+                    var path = file.FullName;
 
-                try
-                {
-                    Utility.WriteFile(path, raw);
-                }
-                catch (UnauthorizedAccessException)
-                {
-                    Utility.RunElevated(Program.ARGUMENT_TAKEOWN);
-                    break;
+                    var raw = Utility.ReadFile(path);
+                    raw = raw.Replace(currentColor, color).Replace(defaultColor, color);
+                    if ("light".Equals(theme))
+                    {
+                        // Windows Spotlight has a different color used (WHY?)
+                        raw = raw.Replace("#0C59A4", color);
+                    }
+
+                    try
+                    {
+                        Utility.WriteFile(path, raw);
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        Utility.RunElevated(Program.ARGUMENT_TAKEOWN);
+                        break;
+                    }
                 }
             }
         }
