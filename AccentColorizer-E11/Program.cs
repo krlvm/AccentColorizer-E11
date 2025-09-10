@@ -73,7 +73,8 @@ namespace AccentColorizer_E11
             {
                 @"MicrosoftWindows.Client.CBS_cw5n1h2txyewy\",    // 21H2
                 @"MicrosoftWindows.Client.Core_cw5n1h2txyewy\",   // 22H2
-                @"MicrosoftWindows.Client.FileExp_cw5n1h2txyewy\" // WASDK
+                @"MicrosoftWindows.Client.FileExp_cw5n1h2txyewy\", // WASDK
+                @"SxS\MicrosoftWindows.54792954.Filons_cw5n1h2txyewy\" // WASDK (newer 24H2 builds)
             };
 
             foreach (var pkg in knownPackages)
