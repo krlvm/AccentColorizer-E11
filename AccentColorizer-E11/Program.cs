@@ -10,6 +10,7 @@ namespace AccentColorizer_E11
     class Program
     {
         public const string ARGUMENT_APPLY = "-" + "Apply";
+        public const string ARGUMENT_REVERT = "-" + "Revert";
         public const string ARGUMENT_TAKEOWN = "-" + "TakeOwnership";
 
         public const string LISTENER_MUTEX = "-" + "ACCENTCLRE11";
@@ -47,9 +48,15 @@ namespace AccentColorizer_E11
                 colorizer.ApplyColorization();
                 key.Close();
             }
+            else if ((args.Length == 1 && ARGUMENT_REVERT.Equals(args[0])) || (args.Length == 2 && ARGUMENT_REVERT.Equals(args[1])))
+            {
+                colorizer.RevertColorization();
+                key.Close();
+            }
             else
             {
                 Mutex mutex;
+
                 if (Mutex.TryOpenExisting(LISTENER_MUTEX, out mutex))
                 {
                     key.Close();

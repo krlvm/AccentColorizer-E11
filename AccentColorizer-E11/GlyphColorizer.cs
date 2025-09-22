@@ -22,16 +22,26 @@ namespace AccentColorizer_E11
 
         public void ApplyColorization()
         {
-            ColorizeGlyphs("light", AccentColors.GetColorByTypeName("ImmersiveSystemAccent"), DEFAULT_COLOR_LIGHT);
-            ColorizeGlyphs("dark", AccentColors.GetColorByTypeName("ImmersiveSystemAccentLight2"), DEFAULT_COLOR_DARK);
+            string ImmersiveSystemAccent = Utility.ColorToHex(AccentColors.GetColorByTypeName("ImmersiveSystemAccent"));
+            string ImmersiveSystemAccentLight2 = Utility.ColorToHex(AccentColors.GetColorByTypeName("ImmersiveSystemAccentLight2"));
+
+            ColorizeGlyphs("light", ImmersiveSystemAccent, DEFAULT_COLOR_LIGHT);
+            ColorizeGlyphs("dark", ImmersiveSystemAccentLight2, DEFAULT_COLOR_DARK);
         }
 
-        public void ColorizeGlyphs(string theme, Color replacementColor, string defaultColor)
+        public void RevertColorization()
         {
-            var color = Utility.ColorToHex(replacementColor);
+            string ImmersiveSystemAccent = Utility.ColorToHex(AccentColors.GetColorByTypeName("ImmersiveSystemAccent"));
+            string ImmersiveSystemAccentLight2 = Utility.ColorToHex(AccentColors.GetColorByTypeName("ImmersiveSystemAccentLight2"));
 
+            ColorizeGlyphs("light", DEFAULT_COLOR_LIGHT, ImmersiveSystemAccent);
+            ColorizeGlyphs("dark", DEFAULT_COLOR_DARK, ImmersiveSystemAccentLight2);
+        }
+
+        public void ColorizeGlyphs(string theme, string replacementColor, string defaultColor)
+        {
             var currentColor = (string)key.GetValue(theme, defaultColor);
-            key.SetValue(theme, color);
+            key.SetValue(theme, replacementColor);
 
             foreach (var basePath in paths)
             {
@@ -42,11 +52,12 @@ namespace AccentColorizer_E11
                     var path = file.FullName;
 
                     var raw = Utility.ReadFile(path);
-                    raw = raw.Replace(currentColor, color).Replace(defaultColor, color);
+                    raw = raw.Replace(currentColor, replacementColor).Replace(defaultColor, replacementColor);
+                    
                     if ("light".Equals(theme))
                     {
                         // Windows Spotlight has a different color used (WHY?)
-                        raw = raw.Replace("#0C59A4", color);
+                        raw = raw.Replace("#0C59A4", replacementColor);
                     }
 
                     try
