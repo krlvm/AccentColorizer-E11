@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Security.AccessControl;
@@ -34,6 +35,23 @@ namespace AccentColorizer_E11
         public static string ColorToHex(Color c)
         {
             return "#" + c.R.ToString("X2") + c.G.ToString("X2") + c.B.ToString("X2");
+        }
+
+        public static string BlendColors(string color1, string color2, int intensity)
+        {
+            int color1_R = Convert.ToInt32($"{color1[1]}{color1[2]}", 16);
+            int color1_G = Convert.ToInt32($"{color1[3]}{color1[4]}", 16);
+            int color1_B = Convert.ToInt32($"{color1[5]}{color1[6]}", 16);
+
+            int color2_R = Convert.ToInt32($"{color2[1]}{color2[2]}", 16);
+            int color2_G = Convert.ToInt32($"{color2[3]}{color2[4]}", 16);
+            int color2_B = Convert.ToInt32($"{color2[5]}{color2[6]}", 16);
+
+            int R = (int)Math.Round((((color1_R * intensity)) + (color2_R * (255 - intensity))) / 255.0);
+            int G = (int)Math.Round((((color1_G * intensity)) + (color2_G * (255 - intensity))) / 255.0);
+            int B = (int)Math.Round((((color1_B * intensity)) + (color2_B * (255 - intensity))) / 255.0);
+
+            return $"#{R:X2}{G:X2}{B:X2}";
         }
 
         public static string ReadFile(string filepath)

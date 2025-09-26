@@ -41,6 +41,9 @@ namespace AccentColorizer_E11
             var currentColor = (string)key.GetValue(theme, defaultColor);
             key.SetValue(theme, replacementColor);
 
+            var currentColorSpotlight = Utility.BlendColors("#251840", currentColor, 82);
+            var replacementColorSpotlight = Utility.BlendColors("#251840", replacementColor, 82);
+
             foreach (var basePath in paths)
             {
                 var dir = new DirectoryInfo(basePath + theme);
@@ -51,11 +54,11 @@ namespace AccentColorizer_E11
 
                     var raw = Utility.ReadFile(path);
                     raw = raw.Replace(currentColor, replacementColor).Replace(defaultColor, replacementColor);
-                    
+
                     if ("light".Equals(theme))
                     {
                         // Windows Spotlight has a different color used (WHY?)
-                        raw = raw.Replace("#0C59A4", replacementColor);
+                        raw = raw.Replace(currentColorSpotlight, replacementColorSpotlight).Replace("#0C59A4", replacementColorSpotlight);
                     }
 
                     try
