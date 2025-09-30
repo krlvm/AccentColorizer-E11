@@ -9,11 +9,11 @@ namespace AccentColorizer_E11
 {
     class Program
     {
-        public const string ARGUMENT_APPLY = "-" + "Apply";
-        public const string ARGUMENT_REVERT = "-" + "Revert";
-        public const string ARGUMENT_TAKEOWN = "-" + "TakeOwnership";
+        public const string ARGUMENT_APPLY = "-Apply";
+        public const string ARGUMENT_REVERT = "-Revert";
+        public const string ARGUMENT_TAKEOWN = "-TakeOwnership";
 
-        public const string LISTENER_MUTEX = "-" + "ACCENTCLRE11";
+        public const string LISTENER_MUTEX = "ACCENTCLRE11";
 
         static void Main(string[] args)
         {
